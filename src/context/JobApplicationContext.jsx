@@ -1,10 +1,12 @@
 import axios from "axios"
 import { createContext, useEffect, useState } from "react"
-
+import { useNavigate } from "react-router-dom"
+import toast from "react-hot-toast"
 const JobApplicationContext = createContext()
 
 export default function JobApplication({ children }) {
   const [jobs, setJobs] = useState([])
+  const navigate = useNavigate()
 
   const fetchJobApplications = async () => {
     try {
@@ -16,18 +18,19 @@ export default function JobApplication({ children }) {
     }
   }
 
-  const fetchSingleJob = async (id, setJob) => {
+  const fetchSingleJob = async (id, setJob, setNewJob) => {
     try {
       const response = await axios.get(
         `http://localhost:5005/jobApplications/${id}`,
       )
       setJob(response.data)
+      setNewJob(response.data)
     } catch (error) {
       console.log(error)
     }
   }
 
-  const createJobApplication = async (newJob, e) => {
+  const createJobApplication = async (newJob, e, setToggleForm) => {
     e.preventDefault()
     try {
       const response = await axios.post(
@@ -36,11 +39,60 @@ export default function JobApplication({ children }) {
       )
 
       if (response.status === 200 || response.status === 201) {
-        return true
+        fetchJobApplications()
+        toast.success("Job application created!")
+        setToggleForm(false)
+        // optimistic UI approach
+        // setJobs([...jobs, newJob])
       }
     } catch (error) {
       console.log(error)
       return false
+    }
+  }
+
+  const updateJobApplication = async (
+    updatedJob,
+    e,
+    id,
+    setIsEditting,
+    setJob,
+  ) => {
+    e.preventDefault()
+    try {
+      const response = await axios.put(
+        `http://localhost:5005/jobApplications/${id}`,
+        updatedJob,
+      )
+
+      if (response.status === 200) {
+        setIsEditting(false)
+        toast.success("Job application updated!")
+
+        setJob((prev) => ({ ...prev, ...updatedJob }))
+        fetchJobApplications()
+      }
+      return response.data
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteJobApplication = async (id) => {
+    try {
+      const confirmed = confirm("Are you sure you want to delete?")
+
+      if (confirmed) {
+        const response = await axios.delete(
+          `http://localhost:5005/jobApplications/${id}`,
+        )
+        response.status === 200 && fetchJobApplications()
+        toast.success("Job application deleted 🤔")
+
+        navigate("/")
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
   useEffect(() => {
@@ -49,7 +101,14 @@ export default function JobApplication({ children }) {
 
   return (
     <JobApplicationContext.Provider
-      value={{ jobs, setJobs, fetchSingleJob, createJobApplication }}
+      value={{
+        jobs,
+        setJobs,
+        fetchSingleJob,
+        createJobApplication,
+        updateJobApplication,
+        deleteJobApplication,
+      }}
     >
       {children}
     </JobApplicationContext.Provider>

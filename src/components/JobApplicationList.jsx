@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { JobApplicationContext } from "../context/JobApplicationContext"
 import { Link } from "react-router-dom"
+
 export default function JobApplicationList() {
   const { jobs } = useContext(JobApplicationContext)
 

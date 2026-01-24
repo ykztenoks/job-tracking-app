@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+.hover-amber {
+  @apply hover:bg-amber-500 transition-all ease-in-out p-4 rounded;
+}
+
+.input {
+  @apply border border-amber-400 rounded p-1;
+}
