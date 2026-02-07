@@ -2,10 +2,11 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { useContext } from "react"
 import { JobApplicationContext } from "../context/JobApplicationContext"
+import api from "../api"
 
 const fetchCompanies = async (setCompanies) => {
   try {
-    const response = await axios.get("http://localhost:5005/companies")
+    const response = await api.get("/companies")
     setCompanies(response.data)
   } catch (error) {
     console.log(error)

@@ -2,6 +2,7 @@ import axios from "axios"
 import { createContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
+import api from "../api"
 const JobApplicationContext = createContext()
 
 export default function JobApplication({ children }) {
@@ -10,7 +11,7 @@ export default function JobApplication({ children }) {
 
   const fetchJobApplications = async () => {
     try {
-      const response = await axios.get("http://localhost:5005/jobApplications")
+      const response = await api.get("/jobApplications")
 
       setJobs(response.data)
     } catch (error) {
@@ -20,9 +21,7 @@ export default function JobApplication({ children }) {
 
   const fetchSingleJob = async (id, setJob, setNewJob) => {
     try {
-      const response = await axios.get(
-        `http://localhost:5005/jobApplications/${id}`,
-      )
+      const response = await api.get(`/jobApplications/${id}`)
       setJob(response.data)
       setNewJob(response.data)
     } catch (error) {
@@ -33,10 +32,7 @@ export default function JobApplication({ children }) {
   const createJobApplication = async (newJob, e, setToggleForm) => {
     e.preventDefault()
     try {
-      const response = await axios.post(
-        "http://localhost:5005/jobApplications",
-        newJob,
-      )
+      const response = await api.post("/jobApplications", newJob)
 
       if (response.status === 200 || response.status === 201) {
         fetchJobApplications()
@@ -60,10 +56,7 @@ export default function JobApplication({ children }) {
   ) => {
     e.preventDefault()
     try {
-      const response = await axios.put(
-        `http://localhost:5005/jobApplications/${id}`,
-        updatedJob,
-      )
+      const response = await api.put(`/jobApplications/${id}`, updatedJob)
 
       if (response.status === 200) {
         setIsEditting(false)
@@ -83,9 +76,7 @@ export default function JobApplication({ children }) {
       const confirmed = confirm("Are you sure you want to delete?")
 
       if (confirmed) {
-        const response = await axios.delete(
-          `http://localhost:5005/jobApplications/${id}`,
-        )
+        const response = await api.delete(`/jobApplications/${id}`)
         response.status === 200 && fetchJobApplications()
         toast.success("Job application deleted 🤔")
 
